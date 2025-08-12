@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Luxe Tetris - A stylish HTML5 Tetris game with neon glow, mobile-friendly controls, and score tracking.">
     <title>Luxe Tetris</title>
     <style>
         body {
@@ -145,7 +146,7 @@
 
         function createPiece() {
             const type = Math.floor(Math.random() * shapes.length);
-            return { shape: shapes[type], color: colors[type], x: Math.floor(cols / 2) - 1, y: 0 };
+            return { shape: shapes[type], color: colors[type], x: Math.floor(cols / 2) - Math.ceil(shapes[type][0].length / 2), y: 0 };
         }
 
         function drawBoard() {
@@ -162,14 +163,24 @@
             }
         }
 
-        function drawPiece(piece, ctx, offsetX = 0, offsetY = 0) {
+        function drawPiece(piece, ctx, blockSizeOverride = blockSize, offsetX = 0, offsetY = 0) {
             ctx.fillStyle = piece.color;
             for (let y = 0; y < piece.shape.length; y++) {
                 for (let x = 0; x < piece.shape[y].length; x++) {
                     if (piece.shape[y][x]) {
-                        ctx.fillRect((piece.x + x + offsetX) * blockSize, (piece.y + y + offsetY) * blockSize, blockSize - 1, blockSize - 1);
+                        ctx.fillRect(
+                            (x + offsetX) * blockSizeOverride,
+                            (y + offsetY) * blockSizeOverride,
+                            blockSizeOverride - 1,
+                            blockSizeOverride - 1
+                        );
                         ctx.strokeStyle = '#ffffff33';
-                        ctx.strokeRect((piece.x + x + offsetX) * blockSize, (piece.y + y + offsetY) * blockSize, blockSize - 1, blockSize - 1);
+                        ctx.strokeRect(
+                            (x + offsetX) * blockSizeOverride,
+                            (y + offsetY) * blockSizeOverride,
+                            blockSizeOverride - 1,
+                            blockSizeOverride - 1
+                        );
                     }
                 }
             }
@@ -177,9 +188,10 @@
 
         function drawNextPiece() {
             nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
-            const offsetX = (nextCanvas.width / blockSize - nextPiece.shape[0].length) / 2;
-            const offsetY = (nextCanvas.height / blockSize - nextPiece.shape.length) / 2;
-            drawPiece(nextPiece, nextCtx, offsetX, offsetY);
+            const previewBlockSize = Math.floor(nextCanvas.width / 4);
+            const offsetX = (nextCanvas.width / previewBlockSize - nextPiece.shape[0].length) / 2;
+            const offsetY = (nextCanvas.height / previewBlockSize - nextPiece.shape.length) / 2;
+            drawPiece(nextPiece, nextCtx, previewBlockSize, offsetX, offsetY);
         }
 
         function collide(piece) {
@@ -304,7 +316,7 @@
                 dropCounter = 0;
             }
             drawBoard();
-            drawPiece(currentPiece, ctx);
+            drawPiece(currentPiece, ctx, blockSize, currentPiece.x, currentPiece.y);
             requestAnimationFrame(gameLoop);
         }
 
