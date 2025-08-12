@@ -146,7 +146,13 @@
 
         function createPiece() {
             const type = Math.floor(Math.random() * shapes.length);
-            return { shape: shapes[type], color: colors[type], x: Math.floor(cols / 2) - Math.ceil(shapes[type][0].length / 2), y: 0 };
+            return { 
+                shape: shapes[type].map(row => [...row]), // deep clone
+                color: colors[type], 
+                type: type,
+                x: Math.floor(cols / 2) - Math.ceil(shapes[type][0].length / 2), 
+                y: 0 
+            };
         }
 
         function drawBoard() {
@@ -213,7 +219,7 @@
             for (let y = 0; y < currentPiece.shape.length; y++) {
                 for (let x = 0; x < currentPiece.shape[y].length; x++) {
                     if (currentPiece.shape[y][x]) {
-                        board[currentPiece.y + y][currentPiece.x + x] = shapes.indexOf(currentPiece.shape) + 1;
+                        board[currentPiece.y + y][currentPiece.x + x] = currentPiece.type + 1;
                     }
                 }
             }
@@ -275,7 +281,7 @@
         }
 
         function rotate() {
-            const originalShape = currentPiece.shape;
+            const originalShape = currentPiece.shape.map(row => [...row]);
             const newShape = Array(originalShape[0].length).fill().map((_, i) =>
                 Array(originalShape.length).fill().map((_, j) => originalShape[originalShape.length - 1 - j][i])
             );
@@ -347,7 +353,7 @@
             rotate();
         });
 
-        // Keyboard controls (voor testen op desktop)
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') moveLeft();
             if (e.key === 'ArrowRight') moveRight();
